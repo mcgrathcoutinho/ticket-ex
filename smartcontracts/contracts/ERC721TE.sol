@@ -8,15 +8,20 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
-abstract contract ERC721 is Context, ERC165, IERC721TE {
+abstract contract ERC721TE is Context, ERC165, IERC721TE {
     using Address for address;
     using Strings for uint256;
 
     string private _name;
     string private _symbol;
 
+    // mapping (uint256 => address) private _owners;
+    //0 -> ryan/s addres
+    // mapping (address => uint256[]) private _ownedTokens;
+
     // Mapping from token ID to owner address
     address[] internal _owners;
+    //[ryan's address, harsh's address]
 
     mapping(uint256 => address) private _tokenApprovals;
     mapping(address => mapping(address => bool)) private _operatorApprovals;
@@ -103,7 +108,7 @@ abstract contract ERC721 is Context, ERC165, IERC721TE {
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual override {
-        address owner = ERC721.ownerOf(tokenId);
+        address owner = ERC721TE.ownerOf(tokenId);
         require(to != owner, "ERC721: approval to current owner");
 
         require(
@@ -157,6 +162,27 @@ abstract contract ERC721 is Context, ERC165, IERC721TE {
         returns (bool)
     {
         return _operatorApprovals[owner][operator];
+    }
+
+    function batchTransferFrom(
+        address _from,
+        address _to,
+        uint256[] memory _tokenIds
+    ) public {
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            transferFrom(_from, _to, _tokenIds[i]);
+        }
+    }
+
+    function batchSafeTransferFrom(
+        address _from,
+        address _to,
+        uint256[] memory _tokenIds,
+        bytes memory data_
+    ) public {
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            safeTransferFrom(_from, _to, _tokenIds[i], data_);
+        }
     }
 
     /**
@@ -263,7 +289,7 @@ abstract contract ERC721 is Context, ERC165, IERC721TE {
             _exists(tokenId),
             "ERC721: operator query for nonexistent token"
         );
-        address owner = ERC721.ownerOf(tokenId);
+        address owner = ERC721TE.ownerOf(tokenId);
         return (spender == owner ||
             getApproved(tokenId) == spender ||
             isApprovedForAll(owner, spender));
@@ -332,7 +358,7 @@ abstract contract ERC721 is Context, ERC165, IERC721TE {
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = ERC721.ownerOf(tokenId);
+        address owner = ERC721TE.ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -361,7 +387,7 @@ abstract contract ERC721 is Context, ERC165, IERC721TE {
         uint256 tokenId
     ) internal virtual {
         require(
-            ERC721.ownerOf(tokenId) == from,
+            ERC721TE.ownerOf(tokenId) == from,
             "ERC721: transfer of token that is not own"
         );
         require(to != address(0), "ERC721: transfer to the zero address");
@@ -383,7 +409,7 @@ abstract contract ERC721 is Context, ERC165, IERC721TE {
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
-        emit Approval(ERC721.ownerOf(tokenId), to, tokenId);
+        emit Approval(ERC721TE.ownerOf(tokenId), to, tokenId);
     }
 
     /**
