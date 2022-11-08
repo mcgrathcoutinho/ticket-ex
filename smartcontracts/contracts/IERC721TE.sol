@@ -7,5 +7,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol";
 
 interface IERC721TE is IERC721, IERC721Receiver, IERC721Metadata {
-    function attend(uint256[] calldata tokenIds) external;
+    function punchTicket(uint256[] calldata tokenIds) external;
+
+    event Punched(uint256 tokenId);
 }

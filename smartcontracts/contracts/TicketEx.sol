@@ -15,13 +15,15 @@ abstract contract TicketEx is Context, ERC165, IERC721TE {
     string private _name;
     string private _symbol;
 
-    // mapping (uint256 => address) private _owners;
-    //0 -> ryan/s addres
-    // mapping (address => uint256[]) private _ownedTokens;
-
     // Mapping from token ID to owner address
     address[] internal _owners;
-    //[ryan's address, harsh's address]
+    string[] internal _tokenURIs;
+
+    uint256[] public prices;
+    uint256[] public qty;
+    uint256[] public tokenURIs;
+    address[] public attendees;
+    uint256 public eventCheckinDeadline;
 
     mapping(uint256 => address) private _tokenApprovals;
     mapping(address => mapping(address => bool)) private _operatorApprovals;
@@ -29,9 +31,34 @@ abstract contract TicketEx is Context, ERC165, IERC721TE {
     /**
      * @dev Initializes the contract by setting a `name` and a `symbol` to the token collection.
      */
-    constructor(string memory name_, string memory symbol_) {
+    constructor(
+        string memory name_,
+        string memory symbol_,
+        string[] memory tokenURIs_,
+        uint256[] memory _prices,
+        uint256 _eventCheckInDeadline
+    ) {
         _name = name_;
         _symbol = symbol_;
+        _tokenURIs = tokenURIs_;
+        prices = _prices;
+        eventCheckinDeadline = _eventCheckInDeadline;
+    }
+
+    function _setTokenURI(uint256 tokenId, uint256 tokenURI_) internal {
+        require(
+            _exists(tokenId),
+            "ERC721Metadata: URI set of nonexistent token"
+        );
+        _tokenURIs[tokenId] = _tokenURIs[tokenURI_];
+    }
+
+    function getTokenURI(uint256 tokenId) public view returns (string memory) {
+        require(
+            _exists(tokenId),
+            "ERC721Metadata: URI set of nonexistent token"
+        );
+        return _tokenURIs[tokenURIs[tokenId]];
     }
 
     /**
@@ -48,6 +75,10 @@ abstract contract TicketEx is Context, ERC165, IERC721TE {
             interfaceId == type(IERC721).interfaceId ||
             interfaceId == type(IERC721Metadata).interfaceId ||
             super.supportsInterface(interfaceId);
+    }
+
+    function totalSupply() public view returns (uint256) {
+        return _owners.length;
     }
 
     /**
@@ -104,11 +135,43 @@ abstract contract TicketEx is Context, ERC165, IERC721TE {
         return _symbol;
     }
 
+    function punchTicket(uint256[] calldata _tokenIds) external {
+        for (uint256 i = 0; i < _tokenIds.length; i++) {
+            require(
+                _exists(_tokenIds[i]),
+                "ERC721: operator query for nonexistent token"
+            );
+            require(
+                _isApprovedOrOwner(_msgSender(), _tokenIds[i]),
+                "ERC721: transfer caller is not owner nor approved"
+            );
+            require(
+                block.timestamp < eventCheckinDeadline,
+                "Event checkin deadline has passed"
+            );
+            attendees.push(ownerOf(_tokenIds[i]));
+            _burn(_tokenIds[i]);
+            emit Punched(_tokenIds[i]);
+        }
+    }
+
+    function isOwnerOf(address account, uint256[] calldata _tokenIds)
+        external
+        view
+        returns (bool)
+    {
+        for (uint256 i; i < _tokenIds.length; ++i) {
+            if (_owners[_tokenIds[i]] != account) return false;
+        }
+
+        return true;
+    }
+
     /**
      * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual override {
-        address owner = ERC721TE.ownerOf(tokenId);
+        address owner = ownerOf(tokenId);
         require(to != owner, "ERC721: approval to current owner");
 
         require(
@@ -289,10 +352,35 @@ abstract contract TicketEx is Context, ERC165, IERC721TE {
             _exists(tokenId),
             "ERC721: operator query for nonexistent token"
         );
-        address owner = ERC721TE.ownerOf(tokenId);
+        address owner = ownerOf(tokenId);
         return (spender == owner ||
             getApproved(tokenId) == spender ||
             isApprovedForAll(owner, spender));
+    }
+
+    function buyTickets(uint256[] calldata _ticket, uint256[] calldata _qty)
+        external
+        payable
+    {
+        require(_ticket.length == _qty.length, "Invalid input");
+        require(_ticket.length > 0, "Invalid input");
+        uint256 totalAmount = 0;
+        uint256 _totalSupply = totalSupply();
+        for (uint256 i = 0; i < _ticket.length; i++) {
+            require(_ticket[i] < _tokenURIs.length, "Invalid ticket type");
+            require(_qty[i] > 0, "Invalid quantity");
+            totalAmount += prices[_ticket[i]] * _qty[i];
+        }
+        require(msg.value >= totalAmount, "Insufficient amount");
+        for (uint256 i = 0; i < _ticket.length; i++) {
+            for (uint256 j = 0; j < _qty[i]; j++) {
+                _mint(msg.sender, _totalSupply);
+                _setTokenURI(_totalSupply, _ticket[i]);
+            }
+        }
+        if (msg.value > totalAmount) {
+            payable(msg.sender).transfer(msg.value - totalAmount);
+        }
     }
 
     /**
@@ -358,7 +446,7 @@ abstract contract TicketEx is Context, ERC165, IERC721TE {
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = ERC721TE.ownerOf(tokenId);
+        address owner = ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -387,7 +475,7 @@ abstract contract TicketEx is Context, ERC165, IERC721TE {
         uint256 tokenId
     ) internal virtual {
         require(
-            ERC721TE.ownerOf(tokenId) == from,
+            ownerOf(tokenId) == from,
             "ERC721: transfer of token that is not own"
         );
         require(to != address(0), "ERC721: transfer to the zero address");
@@ -409,7 +497,7 @@ abstract contract TicketEx is Context, ERC165, IERC721TE {
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
-        emit Approval(ERC721TE.ownerOf(tokenId), to, tokenId);
+        emit Approval(ownerOf(tokenId), to, tokenId);
     }
 
     /**
