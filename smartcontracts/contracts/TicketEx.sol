@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 
-abstract contract ERC721TE is Context, ERC165, IERC721TE {
+abstract contract TicketEx is Context, ERC165, IERC721TE {
     using Address for address;
     using Strings for uint256;
 
