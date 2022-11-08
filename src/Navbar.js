@@ -1,12 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.css';
-import Container from 'react-bootstrap/Container';
-import Carousel from 'react-bootstrap/Carousel';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import CarouselItem from 'react-bootstrap/esm/CarouselItem';
-import EventCarousel from './EventCarousel';
 
 function Navbar() {
     return (
