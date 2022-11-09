@@ -12,6 +12,14 @@ contract ERC1155 is Context, ERC165, IERC1155 {
     // Mapping from token ID to account balances
     mapping(uint256 => mapping(address => uint256)) private _balances;
 
+    // mapping tokenId->owner
+    // mapping tokenID->uri
+
+    // array1[]
+    // array2[]
+    // checking
+    // array1.push(attendee)
+    // array2.push(tokenURI)
     // Mapping from token ID to attendees
     mapping(uint256 => mapping(address => uint256)) private _attendees;
 
@@ -67,50 +75,52 @@ contract ERC1155 is Context, ERC165, IERC1155 {
         _mintBatch(_msgSender(), _ticketIds, _qty, "");
     }
 
-    function checkIn(uint256[] calldata _ticketId, uint256[] calldata _qty)
-        external
-    {
-        require(
-            block.timestamp < eventCheckInDeadline,
-            "Check in deadline has passed"
-        );
-        require(_ticketId.length == _qty.length, "Invalid input");
-        for (uint256 i = 0; i < _ticketId.length; i++) {
-            require(
-                _balances[_ticketId[i]][msg.sender] - _qty[i] >= 0,
-                "You don't have enough tickets"
-            );
-        }
-        _burnBatch(_msgSender(), _ticketId, _qty);
-        for (uint256 i = 0; i < _ticketId.length; i++) {}
-    }
+    // function checkIn(uint256[] calldata _ticketId, uint256[] calldata _qty)
+    //     external
+    // {
+    //     require(
+    //         block.timestamp < eventCheckInDeadline,
+    //         "Check in deadline has passed"
+    //     );
+    //     require(_ticketId.length == _qty.length, "Invalid input");
+    //     for (uint256 i = 0; i < _ticketId.length; i++) {
+    //         require(
+    //             _balances[_ticketId[i]][msg.sender] - _qty[i] >= 0,
+    //             "You don't have enough tickets"
+    //         );
+    //     }
+    //     _burnBatch(_msgSender(), _ticketId, _qty);
+    //     // for (uint256 i = 0; i < _ticketId.length; i++) {
+    //     //     _attendees[_ticketId[i]][msg.sender] += _qty[i];
+    //     // }
+    // }
 
-    function _checkIn(
-        address from,
-        uint256[] memory ids,
-        uint256[] memory amounts
-    ) internal virtual {
-        require(from != address(0), "ERC1155: burn from the zero address");
-        require(
-            ids.length == amounts.length,
-            "ERC1155: ids and amounts length mismatch"
-        );
+    // function _checkIn(
+    //     address from,
+    //     uint256[] memory ids,
+    //     uint256[] memory amounts
+    // ) internal virtual {
+    //     require(from != address(0), "ERC1155: burn from the zero address");
+    //     require(
+    //         ids.length == amounts.length,
+    //         "ERC1155: ids and amounts length mismatch"
+    //     );
 
-        for (uint256 i = 0; i < ids.length; i++) {
-            uint256 id = ids[i];
-            uint256 amount = amounts[i];
+    //     for (uint256 i = 0; i < ids.length; i++) {
+    //         uint256 id = ids[i];
+    //         uint256 amount = amounts[i];
 
-            uint256 fromBalance = _balances[id][from];
-            require(
-                fromBalance >= amount,
-                "ERC1155: burn amount exceeds balance"
-            );
-            unchecked {
-                _balances[id][from] = fromBalance - amount;
-            }
-        }
-        emit CheckedIn(_msgSender(), ids, amounts);
-    }
+    //         uint256 fromBalance = _balances[id][from];
+    //         require(
+    //             fromBalance >= amount,
+    //             "ERC1155: burn amount exceeds balance"
+    //         );
+    //         unchecked {
+    //             _balances[id][from] = fromBalance - amount;
+    //         }
+    //     }
+    //     emit CheckedIn(_msgSender(), ids, amounts);
+    // }
 
     /**
      * @dev See {IERC165-supportsInterface}.
