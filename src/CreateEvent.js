@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-// import './mint.css';
+// import './CreateEvent.css';
 
-export default function CreateEvent(){
+function CreateEvent(){
     const [name, setName] = useState()
     const [noOfTickets, setNoOfTickets] = useState()
     const [description, setDescription] = useState()
@@ -49,3 +49,5 @@ export default function CreateEvent(){
             </form>
         </div>
 }
+
+export default CreateEvent;

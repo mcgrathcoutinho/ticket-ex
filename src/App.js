@@ -1,5 +1,5 @@
 import { Dashboard } from "./Dashboard";
-import CreateEvent from './mint.js'
+import CreateEvent from './CreateEvent.js'
 import './App.css';
 
 function App() {
