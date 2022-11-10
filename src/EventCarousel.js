@@ -13,7 +13,7 @@ function EventCarousel(props) {
         <Row className="mt-5">
             <Carousel>
                 {events.map((event) =>
-                    <CarouselItem key={event.eventId}>
+                    <CarouselItem key={event.id}>
                         <Container>
                             <Row className="d-flex align-items-center">
                             <Col sm={6} className="text-center align-items-center">
