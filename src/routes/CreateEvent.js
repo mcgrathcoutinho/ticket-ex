@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import Navbar from './../Navbar';
 // import './CreateEvent.css';
 
-function CreateEvent(){
+
+export default function CreateEvent(){
     const [name, setName] = useState()
     const [noOfTickets, setNoOfTickets] = useState()
     const [description, setDescription] = useState()
@@ -17,8 +19,8 @@ function CreateEvent(){
         // await contract.createEvent(name, description, noOfTickets, ipfsImageUrl)
     }
 
-    return <div>
-         <h1 id="ticketex">TicketEx</h1>
+    return (
+        <div>
             <video autoplay muted loop id="myVideo">
                 <source src="./background-video.mov" type="video/mp4"/>
             </video>
@@ -48,6 +50,5 @@ function CreateEvent(){
             <button id="mint" onClick={createEventBtnHandler}>Create Event</button>
             </form>
         </div>
+    )
 }
-
-export default CreateEvent;

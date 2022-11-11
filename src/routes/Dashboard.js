@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.css';
 import Container from 'react-bootstrap/Container';
-import EventCarousel from './EventCarousel';
-import Navbar from './Navbar';
+import EventCarousel from './../EventCarousel';
+import Navbar from './../Navbar';
 
 const events = [
     {
@@ -33,13 +33,10 @@ const events = [
     }
 ]
 
-function Dashboard() {
+export default function Dashboard() {
   return (
     <Container>
-        <Navbar/>
         <EventCarousel events={events}/>
     </Container>
   );
 }
-
-export { Dashboard };
