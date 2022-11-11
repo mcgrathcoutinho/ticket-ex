@@ -12,26 +12,27 @@ export default function CreateEvent(){
     console.log({ name, noOfTickets, description });
   }, [name, noOfTickets, description]);
 
-  const createEventBtnHandler = async () => {
-    // 1. Upload image to IPFS
-    // 2. Call createEvent method on smart contract
-    // await contract.createEvent(name, description, noOfTickets, ipfsImageUrl)
-  };
+  let file;
 
   const uploadHandler = async (e) => {
-    const file = e.target.files[0];
-    const uploadedFile = await fleekStorage.upload({
-      apiKey: "Oxwo61HtXQs/jvFoPiayTg==",
-      apiSecret: "7nLTggZg9mr35tM9mBv86i34nfxaOca/EeNWb6J4Rt4=",
-      key: "ticketex",
-      ContentType: "multipart/form-data",
-      data: file,
-      httpUploadProgressCallback: (event) => {
-        console.log(Math.round((event.loaded / event.total) * 100) + "% done");
-      },
-    });
-    console.log(uploadedFile);
+    file = e.target.files[0];
   };
+
+  const createEventBtnHandler = async (e) => {
+    e.preventDefault();
+
+    const uploadedFile = await fleekStorage.upload({
+        apiKey: "Oxwo61HtXQs/jvFoPiayTg==",
+        apiSecret: "7nLTggZg9mr35tM9mBv86i34nfxaOca/EeNWb6J4Rt4=",
+        key: file.name,
+        ContentType: "multipart/form-data",
+        data: file,
+        httpUploadProgressCallback: (event) => {
+          console.log(Math.round((event.loaded / event.total) * 100) + "% done");
+        },
+      });
+      console.log(file, uploadedFile);
+    };
 
   return (
     <div>
