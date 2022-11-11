@@ -5,6 +5,8 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
+import "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
+import "@chainlink/contracts/src/v0.8/VRFV2WrapperConsumerBase.sol";
 
 contract ERC1155 is Context, ERC165, IERC1155 {
     using Address for address;
@@ -12,8 +14,14 @@ contract ERC1155 is Context, ERC165, IERC1155 {
     // Mapping from token ID to account balances
     mapping(uint256 => mapping(address => uint256)) private _balances;
 
-    // mapping tokenId->owner
-    // mapping tokenID->uri
+    //an array of addresses that attended/checkedIn
+    address[] public attendees;
+
+    //an array of unique tokenURIs to be assigned post checkin
+    string[] private _tokenURIs;
+
+    //an array of unique tokenURI quantities to be assigned post checkin
+    uint256[] private _tokenURIQuantities;
 
     // array1[]
     // array2[]
@@ -39,6 +47,8 @@ contract ERC1155 is Context, ERC165, IERC1155 {
     string[] private _uri;
 
     uint256 public eventCheckInDeadline;
+
+    uint256 private randNonce = 0;
 
     event CheckedIn(address attendee, uint256[] _tokenIds, uint256[] _qty);
 
@@ -73,6 +83,17 @@ contract ERC1155 is Context, ERC165, IERC1155 {
         }
         require(msg.value == _totalAmount, "Invalid amount");
         _mintBatch(_msgSender(), _ticketIds, _qty, "");
+    }
+
+    function randMod(uint _modulus) internal returns (uint) {
+        // increase nonce
+        randNonce++;
+        return
+            uint(
+                keccak256(
+                    abi.encodePacked(block.timestamp, msg.sender, randNonce)
+                )
+            ) % _modulus;
     }
 
     // function checkIn(uint256[] calldata _ticketId, uint256[] calldata _qty)

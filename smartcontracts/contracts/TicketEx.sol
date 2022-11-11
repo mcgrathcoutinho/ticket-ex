@@ -17,12 +17,17 @@
 
 //     // Mapping from token ID to owner address
 //     address[] internal _owners;
-//     string[] internal _tokenURIs;
-
+//     //array of tokenURIs of types
+//     string[] internal _preCheckInURIs;
+//     //array of price for each token type
 //     uint256[] public prices;
+//     //array of qty for each token type
 //     uint256[] public qty;
-//     uint256[] public tokenURIs;
-//     address[] public attendees;
+//     //internal array of tokenURIs disclosed post
+//     uint256[] internal _tokenURIs;
+
+//     bool[] public isCheckedin;
+
 //     uint256 public eventCheckinDeadline;
 
 //     mapping(uint256 => address) private _tokenApprovals;
