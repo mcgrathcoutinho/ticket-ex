@@ -1,39 +1,38 @@
-import React, { useState, useEffect } from "react";
-import ReactDOM from "react-dom";
-// import fs from "fs";
+import React, { useState, useEffect } from 'react';
 import fleekStorage from "@fleekhq/fleek-storage-js";
-
 // import './CreateEvent.css';
 
-function CreateEvent() {
-  const [name, setName] = useState();
-  const [noOfTickets, setNoOfTickets] = useState();
-  const [description, setDescription] = useState();
+
+export default function CreateEvent(){
+    const [name, setName] = useState()
+    const [noOfTickets, setNoOfTickets] = useState()
+    const [description, setDescription] = useState()
 
   useEffect(() => {
     console.log({ name, noOfTickets, description });
   }, [name, noOfTickets, description]);
 
-  const createEventBtnHandler = async () => {
-    // 1. Upload image to IPFS
-    // 2. Call createEvent method on smart contract
-    // await contract.createEvent(name, description, noOfTickets, ipfsImageUrl)
-  };
+  let file;
 
   const uploadHandler = async (e) => {
-    const file = e.target.files[0];
-    const uploadedFile = await fleekStorage.upload({
-      apiKey: "Oxwo61HtXQs/jvFoPiayTg==",
-      apiSecret: "7nLTggZg9mr35tM9mBv86i34nfxaOca/EeNWb6J4Rt4=",
-      key: "ticketex",
-      ContentType: "multipart/form-data",
-      data: file,
-      httpUploadProgressCallback: (event) => {
-        console.log(Math.round((event.loaded / event.total) * 100) + "% done");
-      },
-    });
-    console.log(uploadedFile);
+    file = e.target.files[0];
   };
+
+  const createEventBtnHandler = async (e) => {
+    e.preventDefault();
+
+    const uploadedFile = await fleekStorage.upload({
+        apiKey: "Oxwo61HtXQs/jvFoPiayTg==",
+        apiSecret: "7nLTggZg9mr35tM9mBv86i34nfxaOca/EeNWb6J4Rt4=",
+        key: file.name,
+        ContentType: "multipart/form-data",
+        data: file,
+        httpUploadProgressCallback: (event) => {
+          console.log(Math.round((event.loaded / event.total) * 100) + "% done");
+        },
+      });
+      console.log(file, uploadedFile);
+    };
 
   return (
     <div>
@@ -96,5 +95,3 @@ function CreateEvent() {
     </div>
   );
 }
-
-export default CreateEvent;
