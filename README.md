@@ -1,4 +1,4 @@
-# Getting Started with Create React App
+# TicketEx - a web3 ticketing platform
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
