@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
 
 contract EventFactory is CloneFactory, Ownable {
-    address[] private Events;
+    address[] public Events;
     mapping(address => bool) private devs;
 
     modifier isDev() {
@@ -20,14 +20,16 @@ contract EventFactory is CloneFactory, Ownable {
 
     constructor(address _baseExampleContract) {
         baseExampleContract = _baseExampleContract;
+        devs[_msgSender()] = true;
     }
 
     function cloneContract(
         string[] calldata fungibleTokenURI_,
         uint256[] calldata prices_,
         uint256[] calldata maxQuantity_,
+        string memory _uri,
         uint256 eventCheckInDeadline_,
-        // address _owner,
+        address _owner,
         address _accounting,
         uint96 _royalty
     ) external isDev {
@@ -36,11 +38,12 @@ contract EventFactory is CloneFactory, Ownable {
             fungibleTokenURI_,
             prices_,
             maxQuantity_,
+            _uri,
             eventCheckInDeadline_,
-            // _owner,
             _accounting,
             _royalty
         );
+        clonedContract.transferOwnership(_owner);
         Events.push(address(clonedContract));
     }
 

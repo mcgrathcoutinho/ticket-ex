@@ -37,10 +37,10 @@ contract TicketEx is Context, ERC165, IERC1155, ERC2981, Initializable {
     mapping(uint256 => mapping(address => uint256)) private _attendees;
 
     // Array for tokenId to _maxQuantity
-    uint256[] private _maxQuantity;
+    uint256[] public maxQuantity;
 
     //Array for tokenSupply
-    uint256[] private _supply;
+    uint256[] public supply;
 
     // Array for tokenId to _prices
     uint256[] private _prices;
@@ -80,9 +80,9 @@ contract TicketEx is Context, ERC165, IERC1155, ERC2981, Initializable {
         // string[] memory nonFungibleTokenURI_,
         uint256[] memory prices_,
         uint256[] memory maxQuantity_,
+        string memory uri_,
         // uint256[] memory tokenURIQuantities_,
         uint256 eventCheckInDeadline_,
-        // address owner_,
         address _accounting,
         uint96 _royalty
     ) public initializer {
@@ -92,13 +92,14 @@ contract TicketEx is Context, ERC165, IERC1155, ERC2981, Initializable {
         // for(uint256 i=0; i<nonFungibleTokenURI_.length; i++){
         //     _nonFungibleTokenURI[i] = nonFungibleTokenURI_[i];
         // }
+        _uri = uri_;
+        _owner = _msgSender();
         _prices = prices_;
-        _maxQuantity = maxQuantity_;
+        maxQuantity = maxQuantity_;
         // _tokenURIQuantities = tokenURIQuantities_;
-        _supply = maxQuantity_;
+        supply = maxQuantity_;
         accounting = _accounting;
         eventCheckInDeadline = eventCheckInDeadline_;
-        transferOwnership(_owner);
         _setDefaultRoyalty(_accounting, _royalty);
     }
 
@@ -118,8 +119,7 @@ contract TicketEx is Context, ERC165, IERC1155, ERC2981, Initializable {
 
         for (uint256 i = 0; i < _ticketIds.length; i++) {
             require(
-                _balances[_ticketIds[i]][msg.sender] + _qty[i] <=
-                    _maxQuantity[i],
+                supply[_ticketIds[i]] - _qty[i] >= 0,
                 "Not enough tickets left"
             );
             // _balances[_ticketIds[i]][msg.sender] += _qty[i];
@@ -128,7 +128,7 @@ contract TicketEx is Context, ERC165, IERC1155, ERC2981, Initializable {
         require(msg.value == _totalAmount, "Invalid amount");
         _mintBatch(_msgSender(), _ticketIds, _qty, "");
         for (uint256 i = 0; i < _ticketIds.length; i++) {
-            _supply[_ticketIds[i]] += _qty[_ticketIds[i]];
+            supply[_ticketIds[i]] += _qty[_ticketIds[i]];
         }
     }
 
@@ -151,6 +151,7 @@ contract TicketEx is Context, ERC165, IERC1155, ERC2981, Initializable {
             "Check in deadline has passed"
         );
         require(_ticketId.length == _qty.length, "Invalid input");
+        require(_tokenURIQuantities.length != 0, "Checkin not started yet!");
         for (uint256 i = 0; i < _ticketId.length; i++) {
             require(
                 _balances[_ticketId[i]][msg.sender] - _qty[i] >= 0,
@@ -177,11 +178,11 @@ contract TicketEx is Context, ERC165, IERC1155, ERC2981, Initializable {
         }
     }
 
-    function getBaseTokenURI() public view returns (string memory) {
+    function getBaseURI() public view returns (string memory) {
         return _uri;
     }
 
-    function setBaseTokenURI(string memory newuri) public {
+    function setBaseURI(string memory newuri) public {
         _uri = newuri;
     }
 
@@ -213,6 +214,10 @@ contract TicketEx is Context, ERC165, IERC1155, ERC2981, Initializable {
 
     function transferOwnership(address _newOwner) public onlyOwner {
         _owner = _newOwner;
+    }
+
+    function getOwner() public view returns (address) {
+        return _owner;
     }
 
     // function onERC1155Received(
